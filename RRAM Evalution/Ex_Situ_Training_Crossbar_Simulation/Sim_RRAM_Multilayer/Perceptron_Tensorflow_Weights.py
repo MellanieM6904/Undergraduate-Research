@@ -1,8 +1,9 @@
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Flatten
-from tensorflow.keras.utils import plot_model
+# import tensorflow as tf
+# from tensorflow.keras.models import Sequential
+# from tensorflow.keras.layers import Dense, Flatten
+# from tensorflow.keras.utils import plot_model
+from customOptimizer import CGA
 import os
 
 
@@ -26,21 +27,24 @@ def get_Weights(weight_path_template, bias_path_template, train_images, train_la
     print(f'Amount of layers {len(weights)}')
     if len(weights) == 0:
         print("Weights and biases files not found, executing Model...")
-        # Create model
-        model = Sequential([
-            Flatten(input_shape=(28, 28)),
-            Dense(128, activation='relu'),
-            Dense(10, activation='softmax')
-        ])
-
-        # Compile model
-        model.compile(optimizer='adam',
-                    loss='categorical_crossentropy',
-                    metrics=['accuracy'])
-
         # Train model
-        model.fit(train_images, train_labels, epochs=5)
+        training = CGA(100, .9, .01, 30, train_images, train_labels)
+        model = training.evolve()['model']
 
+        # Create model
+        # model = Sequential([
+        #     Flatten(input_shape=(28, 28)),
+        #     Dense(128, activation='relu'),
+        #     Dense(10, activation='softmax')
+        # ])
+
+        # # Compile model
+        # model.compile(optimizer='adam',
+        #             loss='categorical_crossentropy',
+        #             metrics=['accuracy'])
+
+        # # Train model
+        # model.fit(train_images, train_labels, epochs=5)
 
         # Plot the model
         # plot_model(model, to_file='Figures/model.png', show_shapes=True, show_layer_names=True, dpi=300)
