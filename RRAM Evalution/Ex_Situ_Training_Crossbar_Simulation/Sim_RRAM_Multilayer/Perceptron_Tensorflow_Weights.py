@@ -28,7 +28,7 @@ def get_Weights(weight_path_template, bias_path_template, train_images, train_la
     if len(weights) == 0:
         print("Weights and biases files not found, executing Model...")
         # Train model
-        training = CGA(100, .9, .01, 30, train_images, train_labels)
+        training = CGA(100, .9, .01, 100, train_images, train_labels)
         model = training.evolve()['model']
 
         # Create model

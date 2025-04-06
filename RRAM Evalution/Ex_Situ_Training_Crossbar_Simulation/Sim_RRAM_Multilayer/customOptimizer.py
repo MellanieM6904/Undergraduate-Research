@@ -25,7 +25,7 @@ class CGA:
 
     def initialize_population(self):
         '''Create initial population of individuals'''
-        population = {}
+        population = {} # Potential fix; alter population to resemble a toroidal mesh
 
         for i in range(self.pop_size):
 
@@ -54,8 +54,9 @@ class CGA:
         '''Collect adjacent nodes and select parents'''
         neighbors = []
 
-        for i in range(individual - 2, individual + 3): # need to still implement wrap around
-            neighbors.append(population[i])
+        for i in range(individual - 2, individual + 3):
+            index = i % self.pop_size # Wrap around
+            neighbors.append(population[index])
 
         parents = random.sample(neighbors, 2)
 
@@ -93,12 +94,14 @@ class CGA:
 
         return o1, o2
 
-    def uniform_mutation(self, offspring):
+    def uniform_mutation(self, offspring): # Potential fix; use non_uniform, or another mutation algorithm
         '''Perform mutation on offspring'''
         for child in offspring:
             for gene in child:
                 r = random.uniform(0, 1)
                 child[gene] = child[gene] + (r - .5) * .5 # may need to be altered to ensure it is in bounds
+
+        return offspring
                 
 
     def replace(self, individual, offspring):
@@ -111,16 +114,17 @@ class CGA:
                 Dense(10, activation='softmax')
             ])
             model.set_weights(unflattened_child)
+            # optimizer hard coded @ learning rate = 0 to prevent it from altering the evolutionary model while still using keras model
             model.compile(optimizer = SGD(learning_rate = 0.0), loss = 'categorical_crossentropy', metrics = ['accuracy'])
 
             fitness = self.get_fitness(model)
-            if fitness > individual[2]:
+            if fitness > individual['fitness']:
                 child_dict = {'model': model, 'wb': child, 'fitness': fitness}
                 individual.update(child_dict)
 
     def get_fitness(self, model):
         '''Evaluate solution fitness with just a forward pass'''
-        loss, acc = model.evaluate(self.x_val, self.y_val)
+        loss, acc = model.evaluate(self.x_val, self.y_val, verbose = 0)
         return acc
 
     def best_individual(self, population):
@@ -147,7 +151,7 @@ class CGA:
             for key in population:
                 parents = self.selection(key, population)
                 best = self.best_individual(population)
-                offpring = self.DX_crossover(parents, population[best], num_generations)
+                offspring = self.DX_crossover(parents, population[best], num_generations)
                 offspring = self.uniform_mutation(offspring)
                 self.replace(population[key], offspring)
                 num_generations += 2
@@ -162,7 +166,7 @@ class CGA:
     
     def unflatten_weights(self, wb_vector):
         '''Unflatten weights + biases so they can be applied to network'''
-        shapes = [
+        shapes = [ # Hardcoded for MNIST dataset
             (784, 128),
             (128,),
             (128, 10),
