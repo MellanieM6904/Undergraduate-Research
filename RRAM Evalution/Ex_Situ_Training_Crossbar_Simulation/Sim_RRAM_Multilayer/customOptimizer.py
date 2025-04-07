@@ -99,7 +99,7 @@ class CGA:
         for child in offspring:
             for gene in child:
                 r = random.uniform(0, 1)
-                child[gene] = child[gene] + (r - .5) * .5 # may need to be altered to ensure it is in bounds
+                gene = gene + (r - .5) * .5 # may need to be altered to ensure it is in bounds
 
         return offspring
                 
@@ -115,7 +115,7 @@ class CGA:
             ])
             model.set_weights(unflattened_child)
             # optimizer hard coded @ learning rate = 0 to prevent it from altering the evolutionary model while still using keras model
-            model.compile(optimizer = SGD(learning_rate = 0.0), loss = 'categorical_crossentropy', metrics = ['accuracy'])
+            model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
 
             fitness = self.get_fitness(model)
             if fitness > individual['fitness']:
@@ -124,6 +124,7 @@ class CGA:
 
     def get_fitness(self, model):
         '''Evaluate solution fitness with just a forward pass'''
+        model.fit(self.x_val, self.y_val, epochs = 1, verbose = 0) # Baldwinian approach
         loss, acc = model.evaluate(self.x_val, self.y_val, verbose = 0)
         return acc
 
