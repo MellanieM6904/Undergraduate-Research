@@ -1,6 +1,6 @@
 #################
 # Mellanie Martin
-# Implement Cellular Genetic Algorithm, an evolutionary based training algorithm
+# Implement a Baldwinian algorithm, a hybrid between CGA and gradient-based learning
 #################
 
 #### IMPORTS ####
@@ -12,7 +12,7 @@ import math
 import os
 #################
 
-class CGA:
+class Baldwinian:
     def __init__(self, popSize, crossover_rate, mutation_rate, generations, x_val, y_val, **kwargs):
         super().__init__(**kwargs)
         self.pop_size = popSize

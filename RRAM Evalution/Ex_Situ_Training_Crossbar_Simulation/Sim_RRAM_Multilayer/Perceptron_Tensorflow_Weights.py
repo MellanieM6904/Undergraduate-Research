@@ -3,7 +3,7 @@ import numpy as np
 # from tensorflow.keras.models import Sequential
 # from tensorflow.keras.layers import Dense, Flatten
 # from tensorflow.keras.utils import plot_model
-from customOptimizer import CGA
+from Baldwinian_Approach import Baldwinian
 import os
 
 
@@ -28,7 +28,7 @@ def get_Weights(weight_path_template, bias_path_template, train_images, train_la
     if len(weights) == 0:
         print("Weights and biases files not found, executing Model...")
         # Train model
-        training = CGA(100, .9, .01, 100, train_images, train_labels)
+        training = Baldwinian(100, .9, .01, 100, train_images, train_labels)
         model = training.evolve()['model']
 
         # Create model
