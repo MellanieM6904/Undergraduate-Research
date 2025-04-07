@@ -6,7 +6,6 @@
 #### IMPORTS ####
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Flatten, Dense
-from tensorflow.keras.optimizers import SGD
 import numpy as np
 import random
 import math
@@ -36,7 +35,7 @@ class CGA:
                 Dense(128, activation='relu'),
                 Dense(10, activation='softmax')
             ])
-            model.compile(optimizer = SGD(learning_rate = 0.0), loss = 'categorical_crossentropy', metrics = ['accuracy'])
+            model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
 
             inital_weights = []
             for layer in model.layers:
@@ -114,7 +113,6 @@ class CGA:
                 Dense(10, activation='softmax')
             ])
             model.set_weights(unflattened_child)
-            # optimizer hard coded @ learning rate = 0 to prevent it from altering the evolutionary model while still using keras model
             model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
 
             fitness = self.get_fitness(model)
