@@ -13,14 +13,16 @@ import os
 #################
 
 class Lamarckian:
-    def __init__(self, popSize, crossover_rate, mutation_rate, generations, x_val, y_val, **kwargs):
+    def __init__(self, popSize, crossover_rate, mutation_rate, generations, x_train, x_test, y_train, y_test, **kwargs):
         super().__init__(**kwargs)
         self.pop_size = popSize
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
         self.generations = generations
-        self.x_val = x_val
-        self.y_val = y_val
+        self.x_train = x_train
+        self.x_test = x_test
+        self.y_train = y_train
+        self.y_test = y_test
 
     def initialize_population(self):
         '''Create initial population of individuals'''
@@ -122,12 +124,12 @@ class Lamarckian:
 
     def get_fitness(self, model):
         '''Evaluate solution fitness with just a forward pass'''
-        model.fit(self.x_val, self.y_val, epochs = 1, verbose = 0)
+        model.fit(self.x_train, self.y_train, epochs = 1, verbose = 0)
         learned_weights = []
         for layer in model.layers:
             learned_weights.extend(layer.get_weights())
         model.set_weights(learned_weights)
-        loss, acc = model.evaluate(self.x_val, self.y_val, verbose = 0)
+        loss, acc = model.evaluate(self.x_test, self.y_test, verbose = 0)
         return acc, self.flatten_weights(learned_weights)
 
     def best_individual(self, population):

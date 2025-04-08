@@ -1,9 +1,9 @@
 import numpy as np
-# import tensorflow as tf
+import tensorflow as tf
 # from tensorflow.keras.models import Sequential
 # from tensorflow.keras.layers import Dense, Flatten
 # from tensorflow.keras.utils import plot_model
-from Baldwinian_Approach import Baldwinian
+from CGA_Approach import CGA
 import os
 
 
@@ -28,8 +28,7 @@ def get_Weights(weight_path_template, bias_path_template, train_images, train_la
     if len(weights) == 0:
         print("Weights and biases files not found, executing Model...")
         # Train model
-        print("TRAINING ALGORITHM: Baldwinian\n")
-        training = Baldwinian(100, .9, .01, 100, train_images, train_labels)
+        training = CGA(100, .9, .01, 100, train_images, train_labels)
         model = training.evolve()['model']
 
         # Create model
@@ -44,8 +43,8 @@ def get_Weights(weight_path_template, bias_path_template, train_images, train_la
         #             loss='categorical_crossentropy',
         #             metrics=['accuracy'])
 
-        # # Train model
-        # model.fit(train_images, train_labels, epochs=5)
+        # Train model
+        model.fit(train_images, train_labels, epochs=5)
 
         # Plot the model
         # plot_model(model, to_file='Figures/model.png', show_shapes=True, show_layer_names=True, dpi=300)
