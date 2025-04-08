@@ -63,8 +63,13 @@ class Baldwinian:
 
         return parents
 
-    def DX_crossover(self, parents, best_individual, t):
+    def DX_crossover(self, parents, best_individual, t, rate):
         '''Perform Damped Crossover (DX) to create offspring'''
+        if random.random() > rate: # No crossover in reproduction
+            o1 = self.flatten_weights(parents[0][1])
+            o2 = self.flatten_weights(parents[1][1])
+            return o1, o2
+        
         mother = self.flatten_weights(parents[0][1])
         father = self.flatten_weights(parents[1][1])
         best = self.flatten_weights(best_individual[1])
@@ -95,8 +100,11 @@ class Baldwinian:
 
         return o1, o2
 
-    def uniform_mutation(self, offspring): # Potential fix; use non_uniform, or another mutation algorithm
+    def uniform_mutation(self, offspring, rate): # Potential fix; use non_uniform, or another mutation algorithm
         '''Perform mutation on offspring'''
+        if random.random() > rate: # no mutation in reproduction
+            return offspring
+        
         for child in offspring:
             for gene in child:
                 r = random.uniform(0, 1)
@@ -152,8 +160,8 @@ class Baldwinian:
             for key in population:
                 parents = self.selection(key, population)
                 best = self.best_individual(population)
-                offspring = self.DX_crossover(parents, population[best], num_generations)
-                offspring = self.uniform_mutation(offspring)
+                offspring = self.DX_crossover(parents, population[best], num_generations, self.crossover_rate)
+                offspring = self.uniform_mutation(offspring, self.mutation_rate)
                 self.replace(population[key], offspring)
                 num_generations += 2
 
