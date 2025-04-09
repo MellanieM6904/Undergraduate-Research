@@ -1,0 +1,20 @@
+GRADIENT:
+Average success deviation: 1.88
+Average success accuracy: 0.8790918333333333
+Average failure deviation: 2.88
+Average failure accuracy: 0.5867935
+CGA:
+Average success deviation: 0.0
+Average success accuracy: 0.0
+Average failure deviation: 1.0
+Average failure accuracy: 0.15981066666666663
+BALDWINIAN:
+Average success deviation: 2.02
+Average success accuracy: 0.9047011666666666
+Average failure deviation: 3.02
+Average failure accuracy: 0.7063938333333334
+LAMARCKIAN:
+Average success deviation: 2.38
+Average success accuracy: 0.8836184999999999
+Average failure deviation: 3.38
+Average failure accuracy: 0.6993250000000002

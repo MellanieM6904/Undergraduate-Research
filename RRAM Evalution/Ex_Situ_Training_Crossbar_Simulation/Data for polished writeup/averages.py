@@ -1,6 +1,6 @@
 import pandas as pd
 
-gradient = pd.read_csv("Gradient Based results.csv")
+gradient = pd.read_csv("Gradient Based Results.csv")
 cga = pd.read_csv("CGA Results.csv")
 baldwin = pd.read_csv("Baldwinian Results.csv")
 lamarck = pd.read_csv("Lamarckian Results.csv")
