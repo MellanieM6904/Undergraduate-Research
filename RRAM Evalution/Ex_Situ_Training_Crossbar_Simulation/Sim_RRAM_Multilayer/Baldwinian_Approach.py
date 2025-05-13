@@ -10,6 +10,8 @@ import numpy as np
 import random
 import math
 import os
+
+import Mutation_Algos
 #################
 
 class Baldwinian:
@@ -39,15 +41,18 @@ class Baldwinian:
             ])
             model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
 
-            inital_weights = []
+            initial_weights = []
             for layer in model.layers:
-                inital_weights.extend(layer.get_weights())
+                initial_weights.extend(layer.get_weights())
+
+            # Get upper + lower bound of initialized weights
+            weights, biases = model.layers[1].get_weights()
 
             # evaluate(population) in algorithm
             fitness = self.get_fitness(model)
 
-            #                   [0]             [1]                     [2]
-            population[key] = {'model': model, 'wb': inital_weights, 'fitness': fitness}
+            #                   [0]             [1]                     [2]                 [3]                 [4]
+            population[key] = {'model': model, 'wb': initial_weights, 'fitness': fitness, 'lb': weights.min(), 'ub': weights.max()}
 
         return population
 
@@ -74,6 +79,10 @@ class Baldwinian:
         father = self.flatten_weights(parents[1][1])
         best = self.flatten_weights(best_individual[1])
 
+        lb = min(parents[0]['lb'], parents[1]['lb'])
+        ub = max(parents[0]['ub'], parents[1]['ub'])
+        bounds = (lb, ub)
+
         avg_gene = [] # average of each gene
         diff_gene = [] # how far best individual is from average for each gene - 'steers'
         for i, j, k in zip(mother, father, best):
@@ -98,19 +107,9 @@ class Baldwinian:
             o1.append(i + k) # o1_i = p1_i + inc_i
             o2.append(j + k) # o2_i = p2_i + inc_i
 
-        return o1, o2
+        offspring = (o1, o2)
 
-    def uniform_mutation(self, offspring, rate): # Potential fix; use non_uniform, or another mutation algorithm
-        '''Perform mutation on offspring'''
-        if random.random() > rate: # no mutation in reproduction
-            return offspring
-        
-        for child in offspring:
-            for gene in child:
-                r = random.uniform(0, 1)
-                gene = gene + (r - .5) * .5 # may need to be altered to ensure it is in bounds
-
-        return offspring
+        return offspring, bounds
                 
 
     def replace(self, individual, offspring):
@@ -125,9 +124,11 @@ class Baldwinian:
             model.set_weights(unflattened_child)
             model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
 
+            weights, biases = model.layers[1].get_weights()
+
             fitness = self.get_fitness(model)
             if fitness > individual['fitness']:
-                child_dict = {'model': model, 'wb': child, 'fitness': fitness}
+                child_dict = {'model': model, 'wb': child, 'fitness': fitness, 'lb': weights.min(), 'ub': weights.max()}
                 individual.update(child_dict)
 
     def get_fitness(self, model):
@@ -160,8 +161,8 @@ class Baldwinian:
             for key in population:
                 parents = self.selection(key, population)
                 best = self.best_individual(population)
-                offspring = self.DX_crossover(parents, population[best], num_generations, self.crossover_rate)
-                offspring = self.uniform_mutation(offspring, self.mutation_rate)
+                offspring, bounds = self.DX_crossover(parents, population[best], num_generations, self.crossover_rate)
+                offspring = Mutation_Algos.non_uniform_mutation(offspring, self.mutation_rate, bounds, num_generations, self.generations)
                 self.replace(population[key], offspring)
                 num_generations += 2
 

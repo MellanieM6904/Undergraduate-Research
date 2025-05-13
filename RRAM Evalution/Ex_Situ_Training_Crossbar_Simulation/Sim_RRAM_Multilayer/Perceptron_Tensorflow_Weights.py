@@ -28,23 +28,23 @@ def get_Weights(weight_path_template, bias_path_template, train_images, train_la
     if len(weights) == 0:
         print("Weights and biases files not found, executing Model...")
         # Train model
-        # training = Baldwinian(100, .9, .01, 100, train_images, test_images, train_labels, test_labels)
-        # model = training.evolve()['model']
+        training = Baldwinian(100, .9, .01, 100, train_images, test_images, train_labels, test_labels)
+        model = training.evolve()['model']
 
         # Create model
-        model = Sequential([
-            Flatten(input_shape=(28, 28)),
-            Dense(128, activation='relu'),
-            Dense(10, activation='softmax')
-        ])
+        # model = Sequential([
+        #     Flatten(input_shape=(28, 28)),
+        #     Dense(128, activation='relu'),
+        #     Dense(10, activation='softmax')
+        # ])
 
-        # Compile model
-        model.compile(optimizer='adam',
-                    loss='categorical_crossentropy',
-                    metrics=['accuracy'])
+        # # Compile model
+        # model.compile(optimizer='adam',
+        #             loss='categorical_crossentropy',
+        #             metrics=['accuracy'])
 
-        # Train model
-        model.fit(train_images, train_labels, epochs=5)
+        # # Train model
+        # model.fit(train_images, train_labels, epochs=5)
 
         # Plot the model
         # plot_model(model, to_file='Figures/model.png', show_shapes=True, show_layer_names=True, dpi=300)
