@@ -28,3 +28,17 @@ def non_uniform_mutation(offspring, rate, bounds, current_eval, max_evals):
 def change_over_td(t, T, r, d, b = .5):
     exp = (1 - t/T) ** b
     return d * (1 - (r ** exp))
+
+def adaptive_uniform(offspring, rate, rank, pop_size):
+    # Adaptive component is rate. Mutation probability is a function of chromosomal fitness
+    # mutation_probability = max_mutation_rate * 1 - (r - 1)/(N - 1)
+    p_m = rate * (1 - ((rank - 1)/(pop_size - 1)))
+
+    for child in offspring:
+        for gene in child:
+            if random.random() > p_m: # no mutation in reproduction
+                continue
+            r = random.uniform(0, 1)
+            gene = gene + (r - .5) * .5 # may need to be altered to ensure it is in bounds
+
+    return offspring

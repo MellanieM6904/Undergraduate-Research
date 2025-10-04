@@ -63,9 +63,11 @@ class Lamarckian:
 
         return parents
 
-    def DX_crossover(self, parents, best_individual, t, rate):
+    def DX_crossover(self, parents, best_individual, t, rate, rank, pop_size):
         '''Perform Damped Crossover (DX) to create offspring'''
-        if random.random() > rate: # No crossover in reproduction
+        p_m = rate * (1 - ((rank - 1)/(pop_size - 1)))
+
+        if random.random() > p_m: # No crossover in reproduction
             o1 = self.flatten_weights(parents[0][1])
             o2 = self.flatten_weights(parents[1][1])
             return o1, o2
@@ -131,12 +133,12 @@ class Lamarckian:
                 individual.update(child_dict)
 
     def get_fitness(self, model):
-        '''Evaluate solution fitness with just a forward pass'''
+        '''Evaluate solution fitness with just a forward pass + update weights'''
         model.fit(self.x_train, self.y_train, epochs = 1, verbose = 0)
         learned_weights = []
         for layer in model.layers:
             learned_weights.extend(layer.get_weights())
-        model.set_weights(learned_weights)
+        model.set_weights(learned_weights) # Lamarckian Approach
         loss, acc = model.evaluate(self.x_test, self.y_test, verbose = 0)
         return acc, self.flatten_weights(learned_weights)
 
@@ -156,16 +158,19 @@ class Lamarckian:
 
     def evolve(self):
         '''Putting it all together - What will be called from Perceptron_Tensorflow_Weights.py'''
+        print("Training\n")
         population = self.initialize_population()
         t = self.pop_size
         num_generations = 1
 
         while t < self.generations:
             for key in population:
+                rankings = sorted(population.items(), key = lambda item: item[1]['fitness'], reverse = True)
+                chromosomal_rank = rankings.index(key) + 1
                 parents = self.selection(key, population)
                 best = self.best_individual(population)
-                offspring = self.DX_crossover(parents, population[best], num_generations, self.crossover_rate)
-                offspring = self.uniform_mutation(offspring, self.mutation_rate)
+                offspring = self.DX_crossover(parents, population[best], num_generations, self.crossover_rate, chromosomal_rank, self.pop_size)
+                offspring = self.adaptive_uniform(offspring, self.mutation_rate, chromosomal_rank, self.pop_size)
                 self.replace(population[key], offspring)
                 num_generations += 2
 

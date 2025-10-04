@@ -46,13 +46,13 @@ class Baldwinian:
                 initial_weights.extend(layer.get_weights())
 
             # Get upper + lower bound of initialized weights
-            weights, biases = model.layers[1].get_weights()
+            #weights, biases = model.layers[1].get_weights()
 
             # evaluate(population) in algorithm
             fitness = self.get_fitness(model)
 
             #                   [0]             [1]                     [2]                 [3]                 [4]
-            population[key] = {'model': model, 'wb': initial_weights, 'fitness': fitness, 'lb': weights.min(), 'ub': weights.max()}
+            population[key] = {'model': model, 'wb': initial_weights, 'fitness': fitness} #'lb': weights.min(), 'ub': weights.max()}
 
         return population
 
@@ -68,9 +68,11 @@ class Baldwinian:
 
         return parents
 
-    def DX_crossover(self, parents, best_individual, t, rate):
+    def DX_crossover(self, parents, best_individual, t, rate, rank, pop_size):
         '''Perform Damped Crossover (DX) to create offspring'''
-        if random.random() > rate: # No crossover in reproduction
+        p_m = rate * (1 - ((rank - 1)/(pop_size - 1)))
+
+        if random.random() > p_m: # No crossover in reproduction
             o1 = self.flatten_weights(parents[0][1])
             o2 = self.flatten_weights(parents[1][1])
             return o1, o2
@@ -78,10 +80,6 @@ class Baldwinian:
         mother = self.flatten_weights(parents[0][1])
         father = self.flatten_weights(parents[1][1])
         best = self.flatten_weights(best_individual[1])
-
-        lb = min(parents[0]['lb'], parents[1]['lb'])
-        ub = max(parents[0]['ub'], parents[1]['ub'])
-        bounds = (lb, ub)
 
         avg_gene = [] # average of each gene
         diff_gene = [] # how far best individual is from average for each gene - 'steers'
@@ -107,9 +105,7 @@ class Baldwinian:
             o1.append(i + k) # o1_i = p1_i + inc_i
             o2.append(j + k) # o2_i = p2_i + inc_i
 
-        offspring = (o1, o2)
-
-        return offspring, bounds
+        return o1, o2
                 
 
     def replace(self, individual, offspring):
@@ -128,7 +124,7 @@ class Baldwinian:
 
             fitness = self.get_fitness(model)
             if fitness > individual['fitness']:
-                child_dict = {'model': model, 'wb': child, 'fitness': fitness, 'lb': weights.min(), 'ub': weights.max()}
+                child_dict = {'model': model, 'wb': child, 'fitness': fitness} #'lb': weights.min(), 'ub': weights.max()}
                 individual.update(child_dict)
 
     def get_fitness(self, model):
@@ -159,10 +155,12 @@ class Baldwinian:
 
         while t < self.generations:
             for key in population:
+                rankings = sorted(population.items(), key = lambda item: item[1]['fitness'], reverse = True)
+                chromosomal_rank = rankings.index(key) + 1
                 parents = self.selection(key, population)
                 best = self.best_individual(population)
-                offspring, bounds = self.DX_crossover(parents, population[best], num_generations, self.crossover_rate)
-                offspring = Mutation_Algos.non_uniform_mutation(offspring, self.mutation_rate, bounds, num_generations, self.generations)
+                offspring = self.DX_crossover(parents, population[best], num_generations, self.crossover_rate)
+                offspring = Mutation_Algos.adaptive_uniform(offspring, self.mutation_rate, chromosomal_rank, self.pop_size)
                 self.replace(population[key], offspring)
                 num_generations += 2
 

@@ -18,3 +18,13 @@ Average success deviation: 2.38
 Average success accuracy: 0.8836184999999999
 Average failure deviation: 3.38
 Average failure accuracy: 0.6993250000000002
+ADAPTIVE BALDWINIAN:
+Average success deviation: 2.27
+Average success accuracy: 0.8908855
+Average failure deviation: 3.27
+Average failure accuracy: 0.7045471666666664
+ADAPTIVE LAMARCKIAN:
+Average success deviation: 2.37
+Average success accuracy: 0.8815605
+Average failure deviation: 3.37
+Average failure accuracy: 0.7045451666666667
