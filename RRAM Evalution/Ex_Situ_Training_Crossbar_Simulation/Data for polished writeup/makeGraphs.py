@@ -5,6 +5,9 @@ import os
 from adjustText import adjust_text 
 
 def Line_Plots():
+
+    plt.rcParams.update({'font.size': 14})
+
     # List of (filename, color, label, marker)
     csv_files = [
         ('Gradient Based Results.csv', '#00B4D8', 'Gradient Based', 'o'),   # Circle
@@ -80,6 +83,9 @@ def Line_Plots():
 
 
 def bar_plot():
+
+    plt.rcParams.update({'font.size': 20})
+
     csv_files = [
         ('Gradient Based Results.csv', '#cecece', 'Gradient Based'),
         ('CGA Results.csv', '#a559aa', 'CGA'),
@@ -89,7 +95,6 @@ def bar_plot():
         ('Adaptive Lamarckian Results.csv', "#082a54", 'Adaptive Lamarckian')
     ]
 
-    # distinct marker shapes per model
     markers = ['o', 's', '^', 'D', 'P', 'X']
 
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -121,22 +126,18 @@ def bar_plot():
 
             offset_x = x + (i - len(csv_files)/2) * width
 
-            # Draw bars
             ax.bar(offset_x, cumulative, width=width, 
                    color=color, edgecolor="black", alpha=0.6)
 
-            # Overlay markers at bar tops
             ax.plot(offset_x, cumulative, 
                     marker=markers[i % len(markers)], 
                     color=color, markersize=8, linestyle="",
                     label=label)
 
-            # Tiny marker if value is zero
             for xi, val in zip(offset_x, cumulative):
                 if val == 0:
                     ax.plot(xi, 0.5, marker=markers[i % len(markers)], 
                             color=color, markersize=5)
-
         else:
             print(f"Data File {file_name} Not Found")
 
@@ -145,73 +146,83 @@ def bar_plot():
     ax.set_title('Failure Rate vs. Conductance Control Deviation')
     ax.set_ylabel('Cumulative Failure Rate (%)')
     ax.set_xlabel('Conductance Control Deviation')
-    ax.legend(loc='upper left')
+
+    # Legend centered at the bottom
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
+              ncol=3, fontsize=17, frameon=False)
+
     ax.set_facecolor('#ededed')
     ax.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
     ax.set_axisbelow(True)
 
     plt.tight_layout()
-    plt.savefig('Bar Plot 2.png', dpi=300)
+    plt.savefig('Bar Plot 2.png', dpi=600, bbox_inches="tight")
     plt.show()
 
 
-def single_line_plot(output_name, file_name):
+def single_line_plot():
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    max_overall_percentage = 0  # To track max y-limit
-    texts = []  # List to store text objects
+    plt.rcParams.update({'font.size': 20})
+    line_color = "#6a90b3"
 
-    if os.path.isfile(file_name):
-        df = pd.read_csv(file_name)
+    csv_files = [
+        ('Gradient Based Results.csv', 'gb'),
+        ('CGA Results.csv', 'CGA'),
+        ('Baldwinian Results.csv', 'baldwin'),
+        ('Lamarckian Results.csv', 'lamarck'),
+        ('Adaptive Baldwinian Results.csv', 'a_baldwin'),
+        ('Adaptive Lamarckian Results.csv', 'a_lamarck')
+    ]
 
-        failure_counts = df['Failure Deviation'].value_counts()
-        counts_df = pd.DataFrame({'Failure': failure_counts}).fillna(0)
-        counts_df.sort_index(inplace=True)
+    for file_name, out_name in csv_files:
 
-        counts_df['Failure Percentage'] = (counts_df['Failure'] / counts_df['Failure'].sum()) * 100
-        counts_df['Cumulative Failure Percentage'] = counts_df['Failure Percentage'].cumsum()
+        fig, ax = plt.subplots(figsize=(10, 6))
+        max_overall_percentage = 0
 
-        # Add a zero-starting deviation one below the smallest
-        counts_df.loc[counts_df.index.min() - 1] = 0
-        counts_df.sort_index(inplace=True)
-        ax.set_xticks(np.arange(0.0, counts_df.index.max() + 1.0, 1.0))
-        ax.set_xticklabels([f'{x:.1f}' for x in ax.get_xticks()])
+        if os.path.isfile(file_name):
+            df = pd.read_csv(file_name)
 
+            failure_counts = df['Failure Deviation'].value_counts()
+            counts_df = pd.DataFrame({'Failure': failure_counts}).fillna(0)
+            counts_df.sort_index(inplace=True)
 
-        # Plotting
-        ax.plot(counts_df.index, counts_df['Cumulative Failure Percentage'], marker='o')
+            counts_df['Failure Percentage'] = (counts_df['Failure'] / counts_df['Failure'].sum()) * 100
+            counts_df['Cumulative Failure Percentage'] = counts_df['Failure Percentage'].cumsum()
 
-        # Track max percentage for setting y-limit
-        max_overall_percentage = max(max_overall_percentage, counts_df['Cumulative Failure Percentage'].max())
+            counts_df.loc[counts_df.index.min() - 1] = 0
+            counts_df.sort_index(inplace=True)
+            ax.set_xticks(np.arange(0.0, counts_df.index.max() + 1.0, 1.0))
+            ax.set_xticklabels([f'{x:.1f}' for x in ax.get_xticks()])
 
-    else:
-        print(f"Data File {file_name} Not Found")
+            # Plotting with chosen color
+            ax.plot(counts_df.index,
+                    counts_df['Cumulative Failure Percentage'],
+                    marker='o', color=line_color, linewidth=2)
 
-    ax.set_title('Failure Rate vs. Conductance Control Deviation')
-    ax.set_ylabel('Failure Rate (%)')
-    ax.set_xlabel('Conductance Control Deviation')
+            max_overall_percentage = max(max_overall_percentage,
+                                        counts_df['Cumulative Failure Percentage'].max())
 
-    # Fill under the line
-    csv_file = file_name
-    if os.path.isfile(csv_file):
-        df = pd.read_csv(csv_file)
-        failure_counts = df['Failure Deviation'].value_counts()
-        counts_df = pd.DataFrame({'Failure': failure_counts}).fillna(0)
-        counts_df.sort_index(inplace=True)
-        counts_df['Failure Percentage'] = (counts_df['Failure'] / counts_df['Failure'].sum()) * 100
-        counts_df['Cumulative Failure Percentage'] = counts_df['Failure Percentage'].cumsum()
-        counts_df.loc[counts_df.index.min() - 1] = 0
-        counts_df.sort_index(inplace=True)
-        ax.fill_between(counts_df.index, counts_df['Cumulative Failure Percentage'], alpha=0.4)
+            # Fill under the line with same color but lighter (alpha)
+            ax.fill_between(counts_df.index,
+                            counts_df['Cumulative Failure Percentage'],
+                            alpha=0.3, color=line_color)
 
-    ax.set_facecolor('#ededed')
-    ax.grid(color='white')
+        else:
+            print(f"Data File {file_name} Not Found")
 
-    ax.set_ylim(0, 1.1 * max_overall_percentage)  # Add 10% buffer
+        ax.set_title('Failure Rate vs. Conductance Control Deviation')
+        ax.set_ylabel('Failure Rate (%)')
+        ax.set_xlabel('Conductance Control Deviation')
 
-    plt.tight_layout()
-    plt.savefig(output_name, dpi=300)
-    plt.show()
+        ax.set_facecolor('#ededed')
+        ax.grid(color='white')
+
+        ax.set_ylim(0, 1.1 * max_overall_percentage)
+
+        plt.tight_layout()
+        plt.savefig(f"{out_name}_graph", dpi=600)
+        #plt.show()
+
 
 if __name__ == '__main__':
     bar_plot()

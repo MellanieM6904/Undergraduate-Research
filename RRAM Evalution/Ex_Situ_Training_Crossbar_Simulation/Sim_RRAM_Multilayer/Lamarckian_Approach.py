@@ -10,6 +10,8 @@ import numpy as np
 import random
 import math
 import os
+
+import Mutation_Algos
 #################
 
 class Lamarckian:
@@ -170,7 +172,7 @@ class Lamarckian:
                 parents = self.selection(key, population)
                 best = self.best_individual(population)
                 offspring = self.DX_crossover(parents, population[best], num_generations, self.crossover_rate, chromosomal_rank, self.pop_size)
-                offspring = self.adaptive_uniform(offspring, self.mutation_rate, chromosomal_rank, self.pop_size)
+                offspring = Mutation_Algos.adaptive_uniform(offspring, self.mutation_rate, chromosomal_rank, self.pop_size)
                 self.replace(population[key], offspring)
                 num_generations += 2
 

@@ -3,7 +3,7 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Flatten
 from tensorflow.keras.utils import plot_model
-from Baldwinian_Approach import Baldwinian
+from Lamarckian_Approach import Lamarckian
 import os
 
 
@@ -28,7 +28,7 @@ def get_Weights(weight_path_template, bias_path_template, train_images, train_la
     if len(weights) == 0:
         print("Weights and biases files not found, executing Model...")
         # Train model
-        training = Baldwinian(100, .9, .1, 100, train_images, test_images, train_labels, test_labels)
+        training = Lamarckian(100, .9, .1, 100, train_images, test_images, train_labels, test_labels)
         model = training.evolve()['model']
 
         # Create model
